@@ -16,7 +16,8 @@ Usage:
   yazio <command> [args] [flags]
 
 Auth:
-  login --email <address>   sign in; the password is typed at a hidden prompt
+  login --email <address>   sign in; the password is typed at a hidden prompt,
+                            or piped in with --password-stdin
   status [--refresh]        what the stored credentials are good for
   logout                    forget the stored tokens
 

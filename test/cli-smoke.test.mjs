@@ -8,9 +8,13 @@ import { promisify } from "node:util";
 const run = promisify(execFile);
 const BIN = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "bin", "yazio.mjs");
 
-async function cli(args) {
+// stdin is always closed explicitly. A command that reads it (--password-stdin) would
+// otherwise wait for an EOF that a pipe held open by the test never sends.
+async function cli(args, stdin = "") {
+  const pending = run(process.execPath, [BIN, ...args]);
+  pending.child.stdin.end(stdin);
   try {
-    const { stdout, stderr } = await run(process.execPath, [BIN, ...args]);
+    const { stdout, stderr } = await pending;
     return { code: 0, stdout, stderr };
   } catch (error) {
     return { code: error.code ?? 1, stdout: error.stdout ?? "", stderr: error.stderr ?? "" };
@@ -69,4 +73,10 @@ test("an unknown flag on a known command names the flags that exist", async () =
   const { code, stderr } = await cli(["logout", "--force"]);
   assert.equal(code, 2);
   assert.match(JSON.parse(stderr).message, /unknown flag for "logout": --force/);
+});
+
+test("--password-stdin with nothing on stdin fails loudly rather than sending an empty password", async () => {
+  const { code, stderr } = await cli(["login", "--email", "me@example.com", "--password-stdin"], "");
+  assert.equal(code, 2);
+  assert.match(JSON.parse(stderr).message, /no password provided/);
 });

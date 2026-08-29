@@ -77,3 +77,14 @@ test("roundDeep walks nested structures without touching non-numbers", () => {
 test("stableStringify is key-order independent", () => {
   assert.equal(stableStringify({ b: 1, a: 2 }), stableStringify({ a: 2, b: 1 }));
 });
+
+test("a piped password keeps everything but the one newline the file ends with", async () => {
+  const { stripTrailingNewline } = await import("../src/commands/login.mjs");
+  assert.equal(stripTrailingNewline("s3cret\n"), "s3cret");
+  assert.equal(stripTrailingNewline("s3cret\r\n"), "s3cret");
+  assert.equal(stripTrailingNewline("s3cret"), "s3cret");
+  // A password may legitimately end in a space, or contain newlines of its own.
+  assert.equal(stripTrailingNewline("s3cret \n"), "s3cret ");
+  assert.equal(stripTrailingNewline("two\nlines\n"), "two\nlines");
+  assert.equal(stripTrailingNewline("s3cret\n\n"), "s3cret\n");
+});
