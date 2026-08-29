@@ -61,6 +61,17 @@ function fakeApi({ onPost } = {}) {
       state.products.push(...body.products);
       return response(204);
     }
+    if (target.pathname === "/v22/user/consumed-items" && method === "DELETE") {
+      const body = JSON.parse(opts.body);
+      state.deletes.push(body);
+      // The real endpoint answers 204 whether or not it removed anything: a wrong bucket is a
+      // silent no-op, and so is an ?id= query parameter.
+      const id = body.products ?? null;
+      if (id && !target.searchParams.has("id")) {
+        state.products = state.products.filter((item) => item.id !== id);
+      }
+      return response(204);
+    }
     if (target.pathname === "/v22/user/widgets/daily-summary") {
       const energy = state.products.reduce((total, item) => total + item.amount * 1.55, 0);
       const protein = state.products.reduce((total, item) => total + item.amount * 0.13, 0);
@@ -231,4 +242,78 @@ test("day totals come back with the write, summed from the four meal slots", asy
   const result = await add({ meal: "breakfast", amount: "150", date: "2026-08-29" });
   assert.equal(Math.round(result.day_totals.energy_kcal), 233);
   assert.equal(result.goals.energy_kcal, 1940);
+});
+
+const removeEntry = (id, flags) => diary.run(["remove", id], flags);
+
+test("removing an entry finds its bucket, deletes once, and confirms it is gone", async () => {
+  const state = fakeApi();
+  const written = await add({ meal: "breakfast", amount: "150", date: "2026-08-29" });
+
+  const result = await removeEntry(written.entry.id, { date: "2026-08-29", yes: true });
+  assert.equal(result.changed, true);
+  assert.equal(result.verified, true);
+  assert.equal(result.bucket, "products", "the bucket is discovered, not supplied");
+  assert.equal(state.deletes.length, 1);
+  assert.deepEqual(Object.keys(state.deletes[0]), ["products"]);
+  assert.equal(typeof state.deletes[0].products, "string", "an array is rejected by the API");
+  assert.equal(state.products.length, 0);
+});
+
+test("removing without --yes asks for confirmation and sends nothing", async () => {
+  const state = fakeApi();
+  const written = await add({ meal: "breakfast", amount: "150", date: "2026-08-29" });
+  const callsBefore = state.calls.length;
+
+  await assert.rejects(
+    () => removeEntry(written.entry.id, { date: "2026-08-29" }),
+    (error) => {
+      assert.equal(error.exitCode, 4);
+      assert.match(error.details.retry_command, /--yes$/);
+      return true;
+    },
+  );
+  assert.equal(state.calls.length, callsBefore, "nothing is read or written without confirmation");
+  assert.equal(state.products.length, 1);
+});
+
+test("removing an entry that is not there reports no change rather than failing", async () => {
+  const state = fakeApi();
+  const result = await removeEntry("DEADBEEF-0000-4000-8000-000000000000", { date: "2026-08-29", yes: true });
+  assert.equal(result.changed, false);
+  assert.equal(result.already_absent, true);
+  assert.equal(state.deletes.length, 0, "there is nothing to delete");
+});
+
+test("a delete the API accepted but did not perform is reported as a conflict", async () => {
+  // 204 means nothing on this endpoint: it answers the same whether or not it removed a row.
+  const state = fakeApi();
+  const written = await add({ meal: "breakfast", amount: "150", date: "2026-08-29" });
+  const keep = state.products.slice();
+  globalThis.fetch = ((inner) => async (url, opts = {}) => {
+    if (new URL(String(url)).pathname === "/v22/user/consumed-items" && (opts.method ?? "GET") === "DELETE") {
+      state.deletes.push(JSON.parse(opts.body));
+      state.products = keep;
+      return response(204);
+    }
+    return inner(url, opts);
+  })(globalThis.fetch);
+
+  await assert.rejects(
+    () => removeEntry(written.entry.id, { date: "2026-08-29", yes: true }),
+    (error) => {
+      assert.equal(error.exitCode, 5);
+      assert.match(error.message, /still on 2026-08-29/);
+      assert.match(error.details.hint, /removed in the app/);
+      return true;
+    },
+  );
+});
+
+test("removing needs an entry id, and says where to find one", async () => {
+  fakeApi();
+  await assert.rejects(() => removeEntry(undefined, { yes: true }), (error) => {
+    assert.match(error.details.hint, /yazio diary day/);
+    return true;
+  });
 });

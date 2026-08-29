@@ -35,6 +35,8 @@ Diary:
       (--amount N | --serving <name>          verified by reading the day back
        [--serving-quantity N])
       [--date YYYY-MM-DD] [--op-key <key>]
+  diary remove <entryId> --yes              delete one entry; the bucket is found
+      [--date YYYY-MM-DD]                     for you and the absence verified
 
 All successful command output is JSON on stdout. Errors are JSON on stderr.
 

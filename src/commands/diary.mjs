@@ -1,25 +1,27 @@
 // yazio diary day [YYYY-MM-DD]
 // yazio diary totals --start YYYY-MM-DD --end YYYY-MM-DD
 // yazio diary add-product <productId> --meal <daytime> (--amount N | --serving <name>)
-import { UnsafeReplayError, UsageError, WriteResultUnknownError } from "../errors.mjs";
+// yazio diary remove <entryId> [--date YYYY-MM-DD] --yes
+import { ConflictError, UnsafeReplayError, UsageError, WriteResultUnknownError } from "../errors.mjs";
 import { perAmount } from "../normalize.mjs";
 import { DAYTIMES, requireDaytime } from "../params.mjs";
 import { deriveEntryId, findOperation, operationKey, recordOperation } from "../state/operation-ledger.mjs";
 import { entryTimestamp, roundDeep, toDateString, toNumber, toStringFlag, toTimestamp } from "../util.mjs";
 import { fetchProduct } from "./product.mjs";
-import { invoke } from "./_shared.mjs";
+import { invoke, requireYes } from "./_shared.mjs";
 
 export const knownFlags = new Set([
-  "start", "end", "date", "meal", "amount", "serving", "serving-quantity", "at", "op-key",
+  "start", "end", "date", "meal", "amount", "serving", "serving-quantity", "at", "op-key", "yes",
 ]);
 
-const SUBCOMMANDS = ["day", "totals", "add-product"];
+const SUBCOMMANDS = ["day", "totals", "add-product", "remove"];
 
 export async function run(positionals, flags) {
   const sub = positionals[0] || "day";
   if (sub === "day") return day(positionals[1] ?? toStringFlag(flags.date, "--date"));
   if (sub === "totals") return totals(flags);
   if (sub === "add-product") return addProduct(positionals[1], flags);
+  if (sub === "remove") return remove(positionals[1], flags);
   throw new UsageError(`unknown diary subcommand: ${sub}`, { known: SUBCOMMANDS });
 }
 
@@ -314,4 +316,69 @@ async function describeWrite({ product, portion, date, daytime, at, entryId, key
     day_totals: dayTotals(summary),
     goals: shapeGoals(summary?.goals),
   };
+}
+
+async function remove(entryId, flags) {
+  if (!entryId) {
+    throw new UsageError("usage: yazio diary remove <entryId> --yes", {
+      hint: "entry ids come from `yazio diary day`; they identify one logging of a food, not the food",
+    });
+  }
+  const date = toDateString(toStringFlag(flags.date, "--date"));
+  requireYes(flags, `yazio diary remove ${entryId} --date ${date} --yes`);
+
+  // The bucket is discovered rather than asked for. The delete body names it, and sending the
+  // wrong one is accepted with a 204 that removes nothing — so the entry has to be located
+  // first, and a caller cannot be expected to know which of the three it lives in.
+  const before = await readDay(date);
+  const found = findEntry(before, entryId);
+  if (!found) {
+    return roundDeep({
+      ok: true,
+      operation: "diary.remove",
+      changed: false,
+      verified: true,
+      already_absent: true,
+      entry_id: entryId,
+      date,
+      day_totals: dayTotals(await invoke("diary.daily-summary", { query: { date } })),
+    });
+  }
+
+  let outcomeUnknown = false;
+  try {
+    await invoke("diary.delete", { json: { [found.bucket]: entryId } });
+  } catch (error) {
+    if (!(error instanceof UnsafeReplayError)) throw error;
+    outcomeUnknown = true;
+  }
+
+  // The endpoint answers 204 whether or not it removed anything — it even accepts an `?id=`
+  // query parameter, answers 204, and does nothing at all — so the only honest report comes
+  // from looking again.
+  const after = await readDay(date);
+  if (findEntry(after, entryId)) {
+    throw new ConflictError(
+      outcomeUnknown
+        ? `the delete of ${entryId} did not complete and the entry is still on ${date}`
+        : `YAZIO accepted the removal of ${entryId} but the entry is still on ${date}`,
+      { entry_id: entryId, bucket: found.bucket, date, hint: "it may need to be removed in the app" },
+    );
+  }
+
+  return roundDeep({
+    ok: true,
+    operation: "diary.remove",
+    changed: true,
+    verified: true,
+    entry_id: entryId,
+    bucket: found.bucket,
+    date,
+    removed: {
+      product_id: found.item.product_id ?? null,
+      amount: found.item.amount ?? null,
+      daytime: found.item.daytime ?? null,
+    },
+    day_totals: dayTotals(await invoke("diary.daily-summary", { query: { date } })),
+  });
 }
