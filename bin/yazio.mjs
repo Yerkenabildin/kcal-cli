@@ -4,12 +4,21 @@ import { errorPayload, UsageError } from "../src/errors.mjs";
 
 // Lazily loaded so that `yazio --help` and a usage error never pay for importing the
 // HTTP client, and so a broken command module cannot take the whole CLI down with it.
-const COMMANDS = {};
+const COMMANDS = {
+  login: () => import("../src/commands/login.mjs"),
+  status: () => import("../src/commands/status.mjs"),
+  logout: () => import("../src/commands/logout.mjs"),
+};
 
 const HELP = `yazio — CLI facade for the private YAZIO food-diary API
 
 Usage:
   yazio <command> [args] [flags]
+
+Auth:
+  login --email <address>   sign in; the password is typed at a hidden prompt
+  status [--refresh]        what the stored credentials are good for
+  logout                    forget the stored tokens
 
 All successful command output is JSON on stdout. Errors are JSON on stderr.
 

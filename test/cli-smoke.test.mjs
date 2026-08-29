@@ -43,3 +43,30 @@ test("stderr stays parseable JSON, one document", async () => {
   const { stderr } = await cli(["nope"]);
   assert.doesNotThrow(() => JSON.parse(stderr));
 });
+
+test("--password is refused: argv is visible in ps", async () => {
+  const { code, stderr } = await cli(["login", "--email", "me@example.com", "--password", "hunter2"]);
+  assert.equal(code, 2);
+  const payload = JSON.parse(stderr);
+  assert.equal(payload.error, "usage_error");
+  assert.match(payload.message, /visible in `ps`/);
+  assert.ok(!stderr.includes("hunter2"), "the rejected password must not be echoed back");
+});
+
+test("login without a terminal fails with usage guidance, not a hang", async () => {
+  const { code, stderr } = await cli(["login", "--email", "me@example.com"]);
+  assert.equal(code, 2);
+  assert.match(JSON.parse(stderr).message, /interactive terminal/);
+});
+
+test("login requires an email that looks like one", async () => {
+  const { code, stderr } = await cli(["login", "--email", "not-an-email"]);
+  assert.equal(code, 2);
+  assert.match(JSON.parse(stderr).message, /must be an email address/);
+});
+
+test("an unknown flag on a known command names the flags that exist", async () => {
+  const { code, stderr } = await cli(["logout", "--force"]);
+  assert.equal(code, 2);
+  assert.match(JSON.parse(stderr).message, /unknown flag for "logout": --force/);
+});
