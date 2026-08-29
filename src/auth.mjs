@@ -36,6 +36,17 @@ async function tokenPost(body) {
 }
 
 function describeTokenFailure(res, payload, text) {
+  // A rejected grant comes back as 400 with an empty text/html body — no error code, no
+  // description, and identical whether the address is unknown or the password is wrong. The
+  // endpoint is otherwise talkative (a blank field or a bad client answers with a JSON
+  // validation list), so an empty 400 is specifically "these credentials were not accepted"
+  // and saying "HTTP 400" instead would send the reader looking for a malformed request.
+  if (res.status === 400 && !payload && !text?.trim()) {
+    return new AuthError("YAZIO did not accept this email and password", {
+      hint: "check the address, and note that an account created with Sign in with Apple or Google "
+        + "has no password until one is set in the YAZIO app",
+    });
+  }
   const reason = payload?.error_description || payload?.error || text?.slice(0, 200) || `HTTP ${res.status}`;
   if (payload?.error === "version_blocked") {
     return new ApiChangedError(`YAZIO blocked this client version during the token exchange: ${reason}`, {
