@@ -1,0 +1,17 @@
+{
+  "name": "yazio-cli",
+  "version": "0.1.0",
+  "description": "Zero-dependency CLI facade for the private YAZIO food-diary API.",
+  "type": "module",
+  "bin": { "yazio": "bin/yazio.mjs" },
+  "engines": { "node": ">=18" },
+  "files": ["bin", "src", "docs", "README.md", "LICENSE"],
+  "scripts": {
+    "yazio": "node bin/yazio.mjs",
+    "test": "node --test",
+    "test:live": "YAZIO_LIVE_TESTS=1 node --test test/live.test.mjs"
+  },
+  "keywords": ["yazio", "cli", "nutrition", "food-diary", "automation"],
+  "license": "MIT",
+  "dependencies": {}
+}
