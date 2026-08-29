@@ -8,6 +8,8 @@ const COMMANDS = {
   login: () => import("../src/commands/login.mjs"),
   status: () => import("../src/commands/status.mjs"),
   logout: () => import("../src/commands/logout.mjs"),
+  search: () => import("../src/commands/search.mjs"),
+  product: () => import("../src/commands/product.mjs"),
 };
 
 const HELP = `yazio — CLI facade for the private YAZIO food-diary API
@@ -20,6 +22,10 @@ Auth:
                             or piped in with --password-stdin
   status [--refresh]        what the stored credentials are good for
   logout                    forget the stored tokens
+
+Catalog:
+  search <query> [--limit N] [--verified]   free text or a barcode
+  product <id> [--amount N] [--barcode ...] servings, barcodes, full nutrients
 
 All successful command output is JSON on stdout. Errors are JSON on stderr.
 
