@@ -10,6 +10,7 @@ const COMMANDS = {
   logout: () => import("../src/commands/logout.mjs"),
   search: () => import("../src/commands/search.mjs"),
   product: () => import("../src/commands/product.mjs"),
+  diary: () => import("../src/commands/diary.mjs"),
 };
 
 const HELP = `yazio — CLI facade for the private YAZIO food-diary API
@@ -26,6 +27,14 @@ Auth:
 Catalog:
   search <query> [--limit N] [--verified]   free text or a barcode
   product <id> [--amount N] [--barcode ...] servings, barcodes, full nutrients
+
+Diary:
+  diary day [YYYY-MM-DD]                    what was logged that day
+  diary totals --start ... --end ...        energy and macros per day
+  diary add-product <id> --meal <slot>      log a product; written once and
+      (--amount N | --serving <name>          verified by reading the day back
+       [--serving-quantity N])
+      [--date YYYY-MM-DD] [--op-key <key>]
 
 All successful command output is JSON on stdout. Errors are JSON on stderr.
 
