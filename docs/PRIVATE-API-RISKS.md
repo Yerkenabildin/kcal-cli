@@ -20,20 +20,45 @@ Symptom: every call starts failing at once, while `yazio login` still works.
 Fix: set `YAZIO_USER_AGENT` to a current YAZIO app User-Agent.
 Handled by: `src/client.mjs` maps it to `ApiChangedError` (exit 7) naming the User-Agent in use.
 
-## 2. The refresh grant is documented but unproven
+## 2. The refresh grant works — confirmed against the live API
 
-`grant_type=refresh_token` appears in the spec, but no reference implementation exercises it —
+`grant_type=refresh_token` appears in the spec, but no reference implementation exercises it:
 one upstream client carries a TODO asking whether refresh exists at all, and the community MCP
 server sidesteps the question by re-running the password grant, which it can do because it holds
-the password for the session. This CLI cannot: it stores only tokens, by design.
+the password for the session. This CLI cannot — it stores only tokens, by design — so this was
+the one auth behaviour that had to be checked rather than assumed.
 
-So a refresh failure has no silent recovery. `src/auth.mjs` reports `authentication_required`
-(exit 3) with the exact re-login command. **This is the one auth behaviour that has to be
-confirmed against the live API.**
+**Verified on 2026-08-29:** a forced refresh returns a new token and moves the expiry. The
+grant is real.
+
+Two things the references got wrong about it:
+
+- **A token lives ~48 hours, not one hour.** `expires_in` comes back as `172800`, matching an
+  older community document rather than the ~3600 the MCP server reports observing. Nothing here
+  hardcodes either: the expiry is taken from the response, with an hour as the fallback only
+  when nothing arrives.
+- A failed refresh still has no silent recovery — there is no stored password by design — so
+  `src/auth.mjs` reports `authentication_required` (exit 3) with the exact re-login command.
+
+## 2a. A rejected login is an empty 400
+
+The token endpoint answers a rejected grant with `400` and an empty `text/html` body: no error
+code, no description, and identical whether the address is unknown or the password is wrong.
+
+It is otherwise talkative — a blank `password` answers
+`[{"property_path":"password","message":"This value should not be blank."}]`, an unrecognised
+client answers `[{"message":"Invalid client"}]` — so an empty 400 specifically means *these
+credentials were not accepted*, and `src/auth.mjs` says so rather than reporting `HTTP 400`.
+
+Worth knowing when one arrives: an account created through Sign in with Apple or Google has no
+password at all until one is set in the app. The profile schema carries `siwa_user_id` and
+`login_type`, so social sign-up is a normal case, not an edge one.
 
 ## 3. Nutrients are per one base unit, not per 100
 
 A product's `nutrients` map is per **one** gram or millilitre — olive oil reads `8.84` kcal/g.
+Confirmed live: searching "kwark" returns `energy.energy: 0.52` and `nutrient.protein: 0.09`
+for a quark that is 52 kcal and 9 g of protein per 100 g.
 Energy is kcal; every other nutrient is grams. Getting this wrong is a factor-of-100 error in
 someone's food diary, which is the highest-consequence bug available in this project, so the
 conversion lives in one place (`src/normalize.mjs`) and is tested at the boundary.
@@ -75,7 +100,9 @@ someone living abroad may still want their home database. Ranking is driven by t
 `Accept-Language` header and hinted by the `locales` query parameter (underscore form,
 `nl_NL,en_NL`).
 
-Search results carry **no `eans`**, so confirming a barcode match requires fetching
+Search results carry **no `eans`** — confirmed live: a result holds exactly `score`, `name`,
+`product_id`, `serving`, `serving_quantity`, `amount`, `base_unit`, `producer`, `is_verified`,
+`nutrients`, `countries`, `language`. So confirming a barcode match requires fetching
 `/v22/products/{id}`, whose body in turn carries no `id` of its own.
 
 ## 8. Terms of service
