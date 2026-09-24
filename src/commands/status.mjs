@@ -10,7 +10,7 @@ import { summariseProfile } from "./login.mjs";
 
 export const knownFlags = new Set(["refresh"]);
 
-const LOGIN_HINT = "yazio login --email <address>";
+const LOGIN_HINT = "kcal provider yazio login --email <address>";
 
 export async function run(_positionals, flags) {
   const base = { ok: true, operation: "status", token_file: tokenFilePath() };

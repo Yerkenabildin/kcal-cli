@@ -5,7 +5,7 @@ import { ApiChangedError, ApiError, AuthError } from "./errors.mjs";
 import { sleep } from "./util.mjs";
 
 const TOKEN_PATH = "/v22/oauth/token";
-export const RELOGIN_HINT = "run: yazio login --email <address>";
+export const RELOGIN_HINT = "run: kcal provider yazio login --email <address>";
 
 // The token exchange is the one call that does not go through client.mjs: it cannot, since
 // client.mjs asks *this* module for a token. It is also the one endpoint the API serves
@@ -191,7 +191,7 @@ export async function refreshTokens({ force = true, expectedAccessToken = null }
         // here is a plausible outcome rather than a surprise. There is no stored password to
         // fall back on by design, so the only honest recovery is to say so.
         throw new AuthError(`token refresh failed (${error.message}) — ${RELOGIN_HINT}`, {
-          retry_command: "yazio login --email <address>",
+          retry_command: "kcal provider yazio login --email <address>",
         });
       }
       return saveTokens(fresh, { refresh_token: cached.refresh_token, user: cached.user });

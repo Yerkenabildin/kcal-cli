@@ -1,17 +1,25 @@
 {
-  "name": "yazio-cli",
-  "version": "0.1.0",
-  "description": "Zero-dependency CLI facade for the private YAZIO food-diary API.",
+  "name": "kcal-cli",
+  "version": "0.2.0",
+  "description": "Local-first calorie, nutrition, recipe, and food-diary CLI.",
   "type": "module",
-  "bin": { "yazio": "bin/yazio.mjs" },
-  "engines": { "node": ">=18" },
+  "bin": {
+    "kcal": "bin/kcal.mjs",
+    "yazio": "bin/yazio.mjs"
+  },
+  "engines": { "node": ">=22" },
   "files": ["bin", "src", "docs", "README.md", "LICENSE"],
   "scripts": {
+    "kcal": "node bin/kcal.mjs",
     "yazio": "node bin/yazio.mjs",
     "test": "node --test",
     "test:live": "YAZIO_LIVE_TESTS=1 node --test test/live.test.mjs"
   },
-  "keywords": ["yazio", "cli", "nutrition", "food-diary", "automation"],
+  "keywords": ["calorie", "nutrition", "food-diary", "recipes", "sqlite", "yazio", "cli", "automation"],
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "ajv": "8.20.0",
+    "better-sqlite3": "13.0.3",
+    "zxing-wasm": "3.1.4"
+  }
 }

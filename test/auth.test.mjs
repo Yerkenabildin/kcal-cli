@@ -114,7 +114,7 @@ test("a failed refresh reports authentication_required with the re-login command
   await assert.rejects(() => auth.ensureAccessToken(), (error) => {
     assert.ok(error instanceof AuthError);
     assert.equal(error.exitCode, 3);
-    assert.match(error.message, /yazio login --email/);
+    assert.match(error.message, /kcal provider yazio login --email/);
     return true;
   });
 });

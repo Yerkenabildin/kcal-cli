@@ -1,4 +1,4 @@
-// yazio login --email <address> [--password-stdin]
+// kcal provider yazio login --email <address> [--password-stdin]
 //
 // Exchanges the account credentials for a token pair. The password arrives either from a hidden
 // TTY prompt or, for a session with no terminal of its own, on stdin. It is never accepted as a
@@ -20,7 +20,7 @@ export function stripTrailingNewline(text) {
 async function readPasswordFromStdin() {
   if (process.stdin.isTTY) {
     throw new UsageError("--password-stdin expects the password on stdin, but stdin is a terminal", {
-      hint: "yazio login --email <address> --password-stdin < /path/to/password-file",
+      hint: "kcal provider yazio login --email <address> --password-stdin < /path/to/password-file",
     });
   }
   const chunks = [];
@@ -36,12 +36,12 @@ export const knownFlags = new Set(["email", "password", "password-stdin"]);
 export async function run(positionals, flags) {
   if (flags.password !== undefined) {
     throw new UsageError("--password is not supported: a password given on the command line is visible in `ps`", {
-      hint: "run `yazio login --email <address>` and type the password at the hidden prompt",
+      hint: "run `kcal provider yazio login --email <address>` and type the password at the hidden prompt",
     });
   }
 
   const email = toStringFlag(flags.email, "--email") || positionals[0];
-  if (!email) throw new UsageError("usage: yazio login --email <address>");
+  if (!email) throw new UsageError("usage: kcal provider yazio login --email <address>");
   if (!email.includes("@")) throw new UsageError(`--email must be an email address, got: ${email}`);
 
   const password = flags["password-stdin"]

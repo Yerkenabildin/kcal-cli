@@ -16,7 +16,7 @@ The API refuses any request whose client version it does not recognise, answerin
 `403 {"error":"version_blocked"}` on **every endpoint except the token exchange**. The version
 rides in the `User-Agent`, not a header of its own.
 
-Symptom: every call starts failing at once, while `yazio login` still works.
+Symptom: every call starts failing at once, while `kcal provider yazio login` still works.
 Fix: set `YAZIO_USER_AGENT` to a current YAZIO app User-Agent.
 Handled by: `src/client.mjs` maps it to `ApiChangedError` (exit 7) naming the User-Agent in use.
 

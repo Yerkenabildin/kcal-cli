@@ -121,7 +121,7 @@ export async function request(apiPath, options = {}) {
         attempt--;
         continue;
       }
-      throw new AuthError("token rejected after refresh — run: yazio login --email <address>");
+      throw new AuthError("token rejected after refresh — run: kcal provider yazio login --email <address>");
     }
 
     if (res.status === 429 && (!replaySafe || attempt + 1 >= maxAttempts)) {

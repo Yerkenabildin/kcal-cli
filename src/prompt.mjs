@@ -24,7 +24,7 @@ export function promptHidden(question) {
   const input = process.stdin;
   if (!input.isTTY) {
     throw new UsageError("a password can only be read from an interactive terminal", {
-      hint: "run `yazio login --email <address>` directly in a terminal, not through a pipe",
+      hint: "run `kcal provider yazio login --email <address>` directly in a terminal, not through a pipe",
     });
   }
 
