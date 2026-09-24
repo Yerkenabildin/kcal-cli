@@ -36,7 +36,7 @@ function response(status, body) {
 }
 
 // A small stateful stand-in for the diary: writes land in `products`, reads see what landed.
-function fakeApi({ onPost } = {}) {
+function fakeApi({ onPost, baseUnit } = {}) {
   const state = {
     products: [], posts: [], calls: [], deletes: [],
   };
@@ -45,7 +45,9 @@ function fakeApi({ onPost } = {}) {
     const method = opts.method ?? "GET";
     state.calls.push(`${method} ${target.pathname}`);
 
-    if (target.pathname === `/v22/products/${PRODUCT_ID}`) return response(200, PRODUCT);
+    if (target.pathname === `/v22/products/${PRODUCT_ID}`) {
+      return response(200, baseUnit ? { ...PRODUCT, base_unit: baseUnit } : PRODUCT);
+    }
     if (target.pathname.startsWith("/v22/products/")) return response(404, { error: "not found" });
     if (target.pathname === "/v22/user/consumed-items" && method === "GET") {
       return response(200, { products: state.products, recipe_portions: [], simple_products: [] });
@@ -148,12 +150,38 @@ test("a named serving is multiplied out from the product's own table", async () 
   assert.equal(state.posts[0].products[0].serving_quantity, 3);
 });
 
-test("logging by grams omits serving entirely rather than sending null", async () => {
+test("logging by weight is labelled the way the app labels it", async () => {
+  // Omitting the field stores a null serving, which leaves the entry without a portion label.
+  // Checked live: the app writes serving "gram" with the amount as the quantity.
   const state = fakeApi();
-  await add({ meal: "breakfast", amount: "150", date: "2026-08-29" });
+  const result = await add({ meal: "breakfast", amount: "150", date: "2026-08-29" });
   const written = state.posts[0].products[0];
-  assert.ok(!("serving" in written), "a null serving makes YAZIO drop the portion label");
-  assert.ok(!("serving_quantity" in written));
+  assert.equal(written.serving, "gram");
+  assert.equal(written.serving_quantity, 150);
+  assert.equal(written.amount, 150);
+  assert.equal(result.target.serving_derived_from_base_unit, true, "not a portion the caller chose");
+});
+
+test("a millilitre product is labelled in millilitres, tracking its base unit", async () => {
+  const state = fakeApi({ baseUnit: "ml" });
+  await add({ meal: "breakfast", amount: "200", date: "2026-08-29" });
+  assert.equal(state.posts[0].products[0].serving, "milliliter");
+  assert.equal(state.posts[0].products[0].serving_quantity, 200);
+});
+
+test("an unfamiliar base unit gets no label rather than an invented one", async () => {
+  const state = fakeApi({ baseUnit: "piece" });
+  await add({ meal: "breakfast", amount: "2", date: "2026-08-29" });
+  const written = state.posts[0].products[0];
+  assert.ok(!("serving" in written), "the app would not use a name we made up");
+});
+
+test("a named serving still wins over the derived label", async () => {
+  const state = fakeApi();
+  const result = await add({ meal: "breakfast", serving: "whole", "serving-quantity": "2", date: "2026-08-29" });
+  assert.equal(state.posts[0].products[0].serving, "whole");
+  assert.equal(state.posts[0].products[0].serving_quantity, 2);
+  assert.equal(result.target.serving_derived_from_base_unit, undefined);
 });
 
 test("a serving the product does not offer is refused, not guessed", async () => {

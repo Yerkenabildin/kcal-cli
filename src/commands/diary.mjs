@@ -164,12 +164,30 @@ async function totals(flags) {
   });
 }
 
+// The pseudo-serving the app itself uses when something is logged by weight or volume. Checked
+// against a live account: every favorite the app wrote by weight carries `serving: "gram",
+// serving_quantity: <amount>`, and a millilitre product carries `"milliliter"` — the name tracks
+// the product's base unit. Omitting the field instead stores a null serving, which is what the
+// spec warns leaves the entry without a portion label in the app.
+const BASE_UNIT_SERVING = { g: "gram", ml: "milliliter" };
+
+export function baseUnitServing(baseUnit) {
+  return BASE_UNIT_SERVING[String(baseUnit || "").toLowerCase()] ?? null;
+}
+
 // Work out the base-unit amount for a portion. An explicit amount always wins; a named serving
 // is looked up in the product's own table and multiplied out. If the product does not offer
 // that serving we refuse rather than guess, because silently logging the wrong quantity is
 // worse than being asked to name one the product has.
 export function resolveAmount(product, { amount, serving, servingQuantity }) {
-  if (amount !== null && amount !== undefined) return { amount, serving: null, servingQuantity: null };
+  if (amount !== null && amount !== undefined) {
+    // A raw amount is still labelled, the way the app labels it. An unrecognised base unit
+    // falls back to no serving rather than inventing a name the app would not use.
+    const pseudo = baseUnitServing(product?.base_unit);
+    return pseudo
+      ? { amount, serving: pseudo, servingQuantity: amount, derivedServing: true }
+      : { amount, serving: null, servingQuantity: null };
+  }
 
   const servings = Array.isArray(product?.servings) ? product.servings : [];
   const quantity = servingQuantity ?? 1;
@@ -305,7 +323,15 @@ async function describeWrite({ product, portion, date, daytime, at, entryId, key
       amount: logged?.amount ?? portion.amount,
       base_unit: product.base_unit,
       logged_at: logged?.date ?? at,
-      ...(portion.serving ? { serving: portion.serving, serving_quantity: portion.servingQuantity } : {}),
+      ...(portion.serving
+        ? {
+            serving: portion.serving,
+            serving_quantity: portion.servingQuantity,
+            // Says this label was derived from the base unit rather than asked for, so a reader
+            // does not think a named portion was chosen.
+            ...(portion.derivedServing ? { serving_derived_from_base_unit: true } : {}),
+          }
+        : {}),
     },
     entry: {
       id: entryId,
