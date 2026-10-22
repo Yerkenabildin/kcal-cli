@@ -2,6 +2,11 @@ node_modules/
 *.tgz
 .env
 *.log
+*.sqlite
+*.sqlite3
+*.sqlite-*
+coverage/
+.DS_Store
 __pycache__/
 *.pyc
 .pytest_cache/

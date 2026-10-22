@@ -49,9 +49,29 @@ beforeEach(() => {
 
 afterEach(() => { globalThis.fetch = realFetch; });
 
+test("scan refuses an image larger than the configured safety limit", async () => {
+  await assert.rejects(
+    scanImage(openDatabase(), imagePath, { maxImageBytes: 1 }),
+    /image is too large/,
+  );
+  assert.equal(requestBody, null);
+});
+
+test("scan requires explicit consent before sending an image to OpenRouter", async () => {
+  await assert.rejects(
+    scanImage(openDatabase(), imagePath),
+    (error) => {
+      assert.ok(error instanceof UsageError);
+      assert.match(error.message, /--allow-ai/);
+      return true;
+    },
+  );
+  assert.equal(requestBody, null);
+});
+
 test("scan falls back to structured OpenRouter label recognition and stores no image blob", async () => {
   const db = openDatabase();
-  const result = await scanImage(db, imagePath, { hint: "lentil bread" });
+  const result = await scanImage(db, imagePath, { hint: "lentil bread", allowAi: true });
   assert.equal(result.mode, "label");
   assert.match(result.item.id, /^scan::/);
   assert.equal(result.item.status, "active");
@@ -68,7 +88,7 @@ test("scan falls back to structured OpenRouter label recognition and stores no i
 test("an incomplete label is blocked until item update supplies the missing value", async () => {
   labelResult.nutrients.protein_g = null;
   const db = openDatabase();
-  const result = await scanImage(db, imagePath, { hint: "lentil bread" });
+  const result = await scanImage(db, imagePath, { hint: "lentil bread", allowAi: true });
   assert.equal(result.item.status, "needs_review");
   await assert.rejects(materializeItem(db, result.item.id), UsageError);
   await assert.rejects(
@@ -91,7 +111,7 @@ test("an incomplete label is blocked until item update supplies the missing valu
 
 test("incompatible printed kJ and kcal values require review", async () => {
   labelResult.nutrients.energy_kj = 2000;
-  const result = await scanImage(openDatabase(), imagePath);
+  const result = await scanImage(openDatabase(), imagePath, { allowAi: true });
   assert.equal(result.item.status, "needs_review");
   assert.ok(result.item.warnings.some((warning) => /kJ.*kcal/i.test(warning)));
 });

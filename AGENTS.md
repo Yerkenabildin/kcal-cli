@@ -44,7 +44,8 @@ the minimum implementation change and run the focused test before the full suite
 - `src/local-diary.mjs` owns diary snapshots, revisions, idempotency keys, totals, and goals.
 - `src/services/catalog-service.mjs` combines local/provider search and controls transactional
   materialization of external IDs.
-- `src/services/scan-service.mjs` performs local ZXing detection before OpenRouter fallback.
+- `src/services/scan-service.mjs` performs local ZXing detection before an explicit
+  `--allow-ai` OpenRouter fallback; image upload is never automatic.
 - `src/providers/` is the external boundary for YAZIO, Open Food Facts, and OpenRouter.
 - `src/schemas.mjs` is the runtime source of truth for product/recipe/label JSON schemas.
 - `src/errors.mjs` maps failures to exit codes and redacts secrets from printed payloads.

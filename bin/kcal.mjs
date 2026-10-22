@@ -21,7 +21,7 @@ Usage:
 
 Catalog:
   search <query> [--limit N]
-  scan <image> [--hint text]
+  scan <image> [--hint text] [--allow-ai]
   item show <id> [--amount N --unit g]
   item save|verify|archive <id>
   item update <id> --set key=value

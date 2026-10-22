@@ -1,22 +1,47 @@
 {
   "name": "kcal-cli",
   "version": "0.2.0",
-  "description": "Local-first calorie, nutrition, recipe, and food-diary CLI.",
+  "description": "Local-first JSON CLI for nutrition, recipes, goals, and food-diary automation.",
   "type": "module",
   "bin": {
     "kcal": "bin/kcal.mjs",
     "yazio": "bin/yazio.mjs"
   },
   "engines": { "node": ">=22" },
-  "files": ["bin", "src", "docs", "README.md", "LICENSE"],
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "skills",
+    ".env.example",
+    "AGENTS.md",
+    "README.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
   "scripts": {
     "kcal": "node bin/kcal.mjs",
     "yazio": "node bin/yazio.mjs",
     "test": "node --test",
-    "test:live": "YAZIO_LIVE_TESTS=1 node --test test/live.test.mjs"
+    "prepublishOnly": "npm test && node --check bin/kcal.mjs && npm pack --dry-run"
   },
-  "keywords": ["calorie", "nutrition", "food-diary", "recipes", "sqlite", "yazio", "cli", "automation"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yerkenabildin/kcal-cli.git"
+  },
+  "homepage": "https://github.com/Yerkenabildin/kcal-cli#readme",
+  "bugs": {
+    "url": "https://github.com/Yerkenabildin/kcal-cli/issues"
+  },
+  "author": "Yerkebulan Abildin",
+  "keywords": ["calorie", "nutrition", "food-diary", "recipes", "sqlite", "yazio", "cli", "automation", "ai-agent", "hermes-agent"],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "dependencies": {
     "ajv": "8.20.0",
     "better-sqlite3": "13.0.3",
