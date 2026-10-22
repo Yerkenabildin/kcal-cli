@@ -35,15 +35,10 @@ export async function scanImage(db, filePath, {
   hint, limit = 10, allowAi = false, maxImageBytes = DEFAULT_MAX_IMAGE_BYTES,
 } = {}) {
   let image;
-  try {
-    const size = fs.statSync(filePath).size;
-    if (size > maxImageBytes) {
-      throw new UsageError(`image is too large: ${size} bytes (maximum ${maxImageBytes})`);
-    }
-    image = fs.readFileSync(filePath);
-  } catch (error) {
-    if (error instanceof UsageError) throw error;
-    throw new UsageError(`cannot read image: ${error.message}`);
+  try { image = fs.readFileSync(filePath); }
+  catch (error) { throw new UsageError(`cannot read image: ${error.message}`); }
+  if (image.byteLength > maxImageBytes) {
+    throw new UsageError(`image is too large: ${image.byteLength} bytes (maximum ${maxImageBytes})`);
   }
   let decoded = [];
   let barcodeError = null;
@@ -75,7 +70,7 @@ export async function scanImage(db, filePath, {
     throw new UsageError("no product match from local barcode scan; rerun with --allow-ai to send the image to OpenRouter");
   }
   const barcodePayload = decoded.map((entry) => entry.text).join(" | ") || null;
-  const recognized = await recognizeNutritionLabel(filePath, { hint, barcodePayload });
+  const recognized = await recognizeNutritionLabel(filePath, { hint, barcodePayload, image });
   const converted = labelToProduct(recognized.result);
   const id = createId("scan");
   const status = converted.needsReview ? "needs_review" : "active";

@@ -52,6 +52,7 @@ If unavailable, stop and explain that `kcal-cli` must be installed. Do not inven
 5. **Verify mutations.** Check the returned `day` object or call `kcal diary day`. A command exit alone is not sufficient evidence.
 6. **Do not blindly replay exit code 6.** Read the diary and reconcile whether the write landed.
 7. **Keep credentials out of argv.** Never pass passwords or API keys as ordinary command arguments.
+8. **Shell-quote every user-supplied value** in commands you construct (`--hint`, query, item id, `--op-key`, file paths). Treat user input as data, never as shell syntax.
 
 ## Standard Logging Workflow
 

@@ -39,8 +39,7 @@
   "keywords": ["calorie", "nutrition", "food-diary", "recipes", "sqlite", "yazio", "cli", "automation", "ai-agent", "hermes-agent"],
   "license": "MIT",
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "dependencies": {
     "ajv": "8.20.0",

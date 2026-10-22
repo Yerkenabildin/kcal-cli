@@ -21,15 +21,16 @@ function contentText(content) {
   return "";
 }
 
-export async function recognizeNutritionLabel(filePath, { hint, barcodePayload } = {}) {
+export async function recognizeNutritionLabel(filePath, { hint, barcodePayload, image } = {}) {
   if (!OPENROUTER_API_KEY) {
     throw new AuthError("OpenRouter is required when no usable product barcode was found", {
       hint: "set OPENROUTER_API_KEY",
     });
   }
-  let image;
-  try { image = fs.readFileSync(filePath); }
-  catch (error) { throw new UsageError(`cannot read image: ${error.message}`); }
+  if (!image) {
+    try { image = fs.readFileSync(filePath); }
+    catch (error) { throw new UsageError(`cannot read image: ${error.message}`); }
+  }
   const prompt = [
     "Extract the nutrition label into the requested JSON schema.",
     "Prefer values for the product as sold and per 100 g or 100 ml; otherwise preserve the printed serving basis.",
