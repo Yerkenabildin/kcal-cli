@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Goal-aware progress dashboard for the bundled Hermes skill, with calories, protein, fat, fiber, English/Russian labels, and truthful lower bounds for incomplete fiber totals.
+
 ## [0.2.1] - 2026-10-27
 
 ### Added

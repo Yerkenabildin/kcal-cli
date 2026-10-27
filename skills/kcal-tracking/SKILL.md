@@ -1,7 +1,7 @@
 ---
 name: kcal-tracking
 description: Use when logging food or tracking nutrition with kcal CLI.
-version: 1.0.1
+version: 1.1.0
 author: Yerkenabildin
 license: MIT
 platforms: [linux, macos, windows]
@@ -119,6 +119,14 @@ kcal diary day [YYYY-MM-DD]
 ```
 
 Confirm that the intended entry exists exactly once and that totals changed as expected. Report the logged item, amount, nutrients, daily total, and remaining goals when configured. Label estimates and incomplete nutrients explicitly.
+
+After every successful diary mutation, and when the user asks for daily progress, run the bundled goal-aware dashboard:
+
+```bash
+python3 scripts/render_progress.py [YYYY-MM-DD] [--lang en|ru]
+```
+
+Resolve `scripts/render_progress.py` relative to this skill's directory when the current working directory differs. The renderer reads goals from `kcal diary day` (falling back to `kcal goal show`), so never substitute hard-coded targets. It always shows calories, protein, fat, and fiber. When a goal exists it shows a bar and percentage; without a goal it shows the current value and `goal not set` / `цель не задана`, without inventing a bar or percentage. Incomplete totals are marked as lower bounds with `≥`. Use its output verbatim in a fenced code block so the bars remain aligned. Choose `--lang ru` only when replying in Russian; English is the default.
 
 ## Corrections and Removal
 
