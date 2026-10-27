@@ -6,9 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-27
+
 ### Added
 
 - Published `kcal-cli` to npm with the `kcal` and deprecated `yazio` binaries.
+- Automated npm releases from GitHub Releases through Trusted Publishing (OIDC), without a long-lived npm token.
 - Public Hermes Agent skill for safe food-diary automation.
 - English project overview and preserved Russian reference documentation.
 - Contributor and security documentation.
@@ -23,5 +26,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Idempotent diary writes, revision history, and stable JSON/exit-code protocol.
 - Local barcode scanning and transactional external-item materialization.
 
-[Unreleased]: https://github.com/Yerkenabildin/kcal-cli/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Yerkenabildin/kcal-cli/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Yerkenabildin/kcal-cli/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Yerkenabildin/kcal-cli/releases/tag/v0.2.0
