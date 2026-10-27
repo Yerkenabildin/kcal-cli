@@ -1,7 +1,7 @@
 ---
 name: kcal-tracking
 description: Use when logging food or tracking nutrition with kcal CLI.
-version: 1.0.0
+version: 1.0.1
 author: Yerkenabildin
 license: MIT
 platforms: [linux, macos, windows]
@@ -42,6 +42,15 @@ kcal --help
 ```
 
 If unavailable, stop and explain that `kcal-cli` must be installed. Do not invent diary state or substitute a different tracker silently.
+
+Install the published package with Node.js 22 or newer, then verify the binary:
+
+```bash
+npm install --global kcal-cli
+kcal --help
+```
+
+Package: https://www.npmjs.com/package/kcal-cli
 
 ## Core Rules
 

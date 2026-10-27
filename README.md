@@ -35,12 +35,14 @@ A local-first JSON CLI for food search, nutrition labels, recipes, goals, and a 
 
 ## Install
 
-Until the first npm release, install directly from GitHub:
+Install the published package from npm:
 
 ```bash
-npm install --global github:Yerkenabildin/kcal-cli
+npm install --global kcal-cli
 kcal --help
 ```
+
+npm package: [kcal-cli](https://www.npmjs.com/package/kcal-cli)
 
 From a checkout:
 
@@ -269,7 +271,7 @@ Passwords are never accepted through ordinary argv flags, printed in JSON, or st
 
 This repository includes an agent workflow at [`skills/kcal-tracking/SKILL.md`](skills/kcal-tracking/SKILL.md).
 
-After the repository is public, install it directly:
+Install it directly from this public repository:
 
 ```bash
 hermes skills install Yerkenabildin/kcal-cli/skills/kcal-tracking

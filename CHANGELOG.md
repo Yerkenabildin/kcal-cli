@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Published `kcal-cli` to npm with the `kcal` and deprecated `yazio` binaries.
 - Public Hermes Agent skill for safe food-diary automation.
 - English project overview and preserved Russian reference documentation.
 - Contributor and security documentation.

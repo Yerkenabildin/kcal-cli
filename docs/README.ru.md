@@ -42,10 +42,19 @@ SQLite является единственным источником истин
 
 ## Установка
 
-Из рабочей копии проекта:
+Установите опубликованный пакет из npm:
 
 ```bash
-npm install
+npm install --global kcal-cli
+kcal --help
+```
+
+Пакет в npm: [kcal-cli](https://www.npmjs.com/package/kcal-cli)
+
+Для разработки из рабочей копии проекта:
+
+```bash
+npm ci
 npm link
 kcal --help
 ```
