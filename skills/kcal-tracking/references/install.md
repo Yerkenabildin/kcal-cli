@@ -23,6 +23,40 @@ If `kcal --help` prints the command tree, installation is complete. No login and
 configuration step is required for local use: kcal creates its own SQLite database on first
 write, and external providers (YAZIO, Open Food Facts, OpenRouter) are optional extras.
 
+## Optional YAZIO authorization
+
+YAZIO is optional. Local foods, the diary, recipes, goals, and Open Food Facts work without a
+YAZIO account. When the user wants YAZIO search, check the current state first:
+
+```bash
+kcal provider yazio status
+```
+
+If it reports `no_token`, ask the user to run this command in their own interactive terminal:
+
+```bash
+kcal provider yazio login --email user@example.com
+```
+
+The CLI reads the password through a hidden TTY prompt. Never ask the user to send the password
+in chat, never pass it with `--password`, and never place it in shell history. The password is
+exchanged for access and refresh tokens and is not saved. Tokens are stored locally at
+`${XDG_CONFIG_HOME:-~/.config}/kcal/providers/yazio-token.json` with file mode `0600` and refresh
+automatically when possible.
+
+After the user completes the prompt, verify authorization:
+
+```bash
+kcal provider yazio status
+```
+
+The expected state is `authenticated`. Accounts created with Sign in with Apple or Google may
+not have a YAZIO password; the user must set one in the YAZIO app first. Remove saved tokens with:
+
+```bash
+kcal provider yazio logout
+```
+
 ## If the binary is still not found
 
 1. Confirm npm's global bin directory is on PATH:

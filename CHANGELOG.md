@@ -4,6 +4,13 @@ All notable changes to this project will be documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases use [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Documented the optional YAZIO sign-in flow, local token storage, safe password handling, status checks, and Apple/Google account caveat.
+- Skill version bumped to 1.3.1.
+
 ## [0.4.1] - 2026-10-27
 
 ### Changed

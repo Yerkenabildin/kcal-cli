@@ -1,7 +1,7 @@
 ---
 name: kcal-tracking
 description: Use when logging food or tracking nutrition with kcal CLI.
-version: 1.3.0
+version: 1.3.1
 author: Yerkenabildin
 license: MIT
 platforms: [linux, macos, windows]

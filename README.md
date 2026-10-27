@@ -29,6 +29,31 @@ A local-first JSON CLI for food search, nutrition labels, recipes, goals, and a 
 > [!WARNING]
 > The YAZIO integration uses an unofficial, reverse-engineered private API. It can break when YAZIO changes its API or mobile-client requirements. It is not required for the local diary or Open Food Facts integration. See [Private API risks](docs/PRIVATE-API-RISKS.md).
 
+### Optional YAZIO sign-in
+
+YAZIO is not required for the local diary or Open Food Facts. To enable its additional product
+search, sign in from an interactive terminal:
+
+```bash
+kcal provider yazio login --email user@example.com
+```
+
+`kcal` asks for the YAZIO password in a hidden prompt. Do not put the password in the command or
+send it to an agent or chat. The password is exchanged for access and refresh tokens and is never
+saved. Tokens are stored locally at
+`${XDG_CONFIG_HOME:-~/.config}/kcal/providers/yazio-token.json` with file mode `0600` and are
+refreshed automatically when possible.
+
+Check or remove the saved authorization with:
+
+```bash
+kcal provider yazio status
+kcal provider yazio logout
+```
+
+Accounts created with Sign in with Apple or Google may not have a YAZIO password. Set one in the
+YAZIO app before using the CLI login command.
+
 ## Requirements
 
 - Node.js 22 or newer
@@ -278,7 +303,7 @@ This repository includes an agent workflow at [`skills/kcal-tracking/SKILL.md`](
 Install it directly from this public repository:
 
 ```bash
-hermes skills install Yerkenabildin/kcal-cli/skills/kcal-tracking
+hermes skills install Yerkenabildin/kcal-cli/kcal-tracking
 ```
 
 The skill teaches Hermes when to log food, how to resolve ambiguous products, how to use idempotency keys, and how to verify every diary mutation.
