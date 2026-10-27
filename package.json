@@ -1,6 +1,6 @@
 {
   "name": "kcal-cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Local-first JSON CLI for nutrition, recipes, goals, and food-diary automation.",
   "type": "module",
   "bin": {
