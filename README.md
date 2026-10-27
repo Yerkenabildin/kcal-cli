@@ -125,6 +125,8 @@ kcal diary totals --start YYYY-MM-DD --end YYYY-MM-DD
 kcal goal set [--energy N] [--protein N] [--fat N] [--carb N] [--fiber N]
 kcal goal show
 
+kcal progress [YYYY-MM-DD] [--lang en|ru] [--json]
+
 kcal scan <image> [--hint text] [--limit 10] [--allow-ai]
 
 kcal provider yazio login --email user@example.com

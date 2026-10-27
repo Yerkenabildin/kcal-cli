@@ -4,6 +4,13 @@ All notable changes to this project will be documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases use [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-27
+
+### Added
+
+- Native `kcal progress [YYYY-MM-DD] [--lang en|ru] [--json]` dashboard: aligned progress bars for calories, protein, fat, and fiber, English/Russian labels, missing goals shown as `goal not set` / `цель не задана`, lower-bound `≥` marking never rounded upward, exact fractional targets.
+- Bundled Hermes skill now a single `SKILL.md` that calls `kcal progress`; the standalone Python renderer and its tests were removed.
+
 ## [0.3.0] - 2026-10-27
 
 ### Added
@@ -31,6 +38,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Idempotent diary writes, revision history, and stable JSON/exit-code protocol.
 - Local barcode scanning and transactional external-item materialization.
 
+[0.4.0]: https://github.com/Yerkenabildin/kcal-cli/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Yerkenabildin/kcal-cli/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Yerkenabildin/kcal-cli/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Yerkenabildin/kcal-cli/releases/tag/v0.2.0

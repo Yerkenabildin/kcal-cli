@@ -236,6 +236,7 @@ kcal diary remove e::<uuid> --yes
 ```text
 kcal goal set [--energy N] [--protein N] [--fat N] [--carb N] [--fiber N]
 kcal goal show
+kcal progress [YYYY-MM-DD] [--lang en|ru] [--json]
 ```
 
 Указывается хотя бы один показатель. Неуказанные значения сохраняются от предыдущей настройки.

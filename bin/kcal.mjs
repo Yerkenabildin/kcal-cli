@@ -11,6 +11,7 @@ const COMMANDS = {
   favorite: () => import("../src/commands/favorite.mjs"),
   diary: () => import("../src/commands/diary-local.mjs"),
   goal: () => import("../src/commands/goal.mjs"),
+  progress: () => import("../src/commands/progress.mjs"),
   provider: () => import("../src/commands/provider.mjs"),
 };
 
@@ -37,6 +38,7 @@ Diary:
   diary remove <entry-id> --yes
   diary totals --start YYYY-MM-DD --end YYYY-MM-DD
   goal set|show
+  progress [YYYY-MM-DD] [--lang en|ru] [--json]
 
 Providers:
   provider yazio login|status|logout
