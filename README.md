@@ -6,6 +6,8 @@ A local-first JSON CLI for food search, nutrition labels, recipes, goals, and a 
 
 [Русская документация](docs/README.ru.md)
 
+![kcal CLI demo: search, log a meal, and view daily progress](docs/assets/kcal-demo.gif)
+
 ## Why kcal?
 
 - **Local-first:** your catalog, recipes, diary, goals, and history live in SQLite.
