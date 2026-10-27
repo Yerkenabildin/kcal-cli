@@ -55,6 +55,15 @@ Include:
 
 Do not include real tokens, passwords, personal food diaries, SQLite databases, or package-label images.
 
+## Releases
+
+1. Update the version in `package.json` and `package-lock.json` and move the relevant changelog entries into a dated release section.
+2. Merge the release commit into `main`.
+3. Publish a GitHub release with a matching `vX.Y.Z` tag.
+4. The `publish` workflow verifies the tag, runs the full test and package checks, and publishes to npm through Trusted Publishing (OIDC).
+
+The release workflow intentionally uses no long-lived `NPM_TOKEN` secret.
+
 ## Reporting security issues
 
 Follow [SECURITY.md](SECURITY.md). Do not open a public issue for an unpatched vulnerability or leaked credential.
